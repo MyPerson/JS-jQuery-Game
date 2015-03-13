@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta  charset=UTF-8>
+<title>Arrow Key Game</title>
+<link href='http://fonts.googleapis.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="styles/reset.css">
+<link rel="stylesheet" type="text/css" href="styles/mystyles.css">
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+</head>
+
+<body>
+<div id ="scorescore"><p>Score: <span class='value'></span> </p></div>
+<div id ="prevscore"><p>Previous Score: <span class='value3'></span></p></div>
+<div id ="highscore"><p>High Score: <span class='value2'></span></p></div>
+
+<!--we need a game intro screen-->
+
+
+<div id="fullColor_">
+  <div id="arrow1"> </div>
+</div>
+<div id="fullColorSwitch_">
+  <div id="arrow2"> </div>
+</div>
+
+<!-- TIMER BAR -->
+<div class="timerbar" data-percent="100%">
+	<div class="timeTitle" style="background: #39F;"><span>TIME</span></div>
+	<div id="timerbar-bar" style="background: #0CF;"></div>
+    <div class="timerbar-percent"><span class='value4'></span></div>
+</div>
+<!-- END TIMER BAR  -->
+
+<script>
+var arrowSuffix = 1001;
+var colorVariant = 1;
+var switcH = 0;
+var scorE = 0;
+var prevScore = 0; //add previous score
+var highScore = 0;
+var currentTime = 0;
+var timeDuration = 1500;//we gotta make a timer variable so the game can go faster eachtime
+var timeVariant = 60;//lets do a variant so levels advance
+
+//TIMER BAR
+//this runs the timer runTimer();
+var runTimer = function(){
+	$('.timerbar').each(function(){
+		$(this).find('#timerbar-bar').animate({width:$(this).attr('data-percent')},timeDuration, endGame); 
+	});	
+};
+///stops timerbar animation stopTimer();
+var stopTimer = function(){
+	$('.timerbar').each(function(){
+		$(this).find('#timerbar-bar').stop(); 
+	});	
+	//variable to identify currentTime in percentage so i can make timesup at 100% at any size screen
+    currentTime = Math.floor($('#timerbar-bar').width() / $('.timerbar').width() * 100);
+}
+//resets the timerbar-bar width to 0 resetTimer(); 
+var resetTimer = function(){
+	document.getElementById('timerbar-bar').style.width='';
+};
+//END TIMER BAR
+
+//generate a random from 1 to 4
+var generateFour = function(){ 
+	arrowSuffix = Math.floor(Math.random()*4+1);
+};
+
+//generate a random from 1 to 10
+var generateTen = function(){ 
+	colorVariant = Math.floor(Math.random()*10);
+};
+
+
+var displayArrow = function(){
+	$('#arrow2').css('background-image','url(assets/arrow'+ arrowSuffix +'.png)');
+	$('#arrow1').css('background-image','url(assets/arrow'+ arrowSuffix +'.png)');
+}
+	
+//ten background colours
+var backColor = [];
+	backColor[0] = '#ec4b28';
+	backColor[1] = '#e13d8d';
+	backColor[2] = '#984d9d';
+	backColor[3] = '#4c3795';
+	backColor[4] = '#3d53a4';
+	backColor[5] = '#68c4a5';
+	backColor[6] = '#46b648';
+	backColor[7] = '#a5ce38';
+	backColor[8] = '#fdda2f';
+	backColor[9] = '#f19033';
+
+//these two switch between eachother
+var showFullColor = function (){
+	$('#fullColor_').css('min-height', '100%');
+	$('#fullColor_').css('background-color', backColor[colorVariant]);
+	$('#fullColorSwitch_').css('min-height', '0%');
+	$('#arrow2').css('display','none');
+	$('#arrow1').css('display','block');	
+	generateTen();
+	//generateFour(); //these need to be somewhere else
+	displayArrow(); 
+}
+//these two switch between eachother
+var hideFullColor = function (){
+	$('#fullColorSwitch_').css('min-height', '100%');
+	$('#fullColorSwitch_').css('background-color', backColor[colorVariant]);
+	$('#fullColor_').css('min-height', '0%');
+	$('#arrow1').css('display','none');
+	$('#arrow2').css('display','block');
+	generateTen();
+	//generateFour(); //these need to be somewhere else
+	displayArrow();
+}
+showFullColor(); //runs the first instant of the game
+
+//this is the switch between each tile
+var switchMan= function(){
+	    runTimer();	
+		if (switcH = 0) {
+       		hideFullColor();
+	   		switcH = 1;
+    	} else { 
+			showFullColor();
+			switcH = 0;
+		};
+}
+//controls legend
+/*
+37 - left - png = 4
+38 - up  - png = 1
+39 - right - png = 2
+40 - down - png = 3
+32 - space - png - 5
+*/
+document.onkeydown = checkKey;
+	function checkKey(e) {
+    	e = e || window.event;	
+    	if (e.keyCode == '38') { // up arrow
+			keyCheck = 1;
+			stopTimer();
+	    } else if (e.keyCode == '39') {// right arrow
+			keyCheck = 2;
+			stopTimer();	
+	    } else if (e.keyCode == '40') {// down arrow
+    	    keyCheck = 3;
+			stopTimer();
+	    } else if (e.keyCode == '37') {// left arrow
+			keyCheck = 4;
+			stopTimer();  
+		} else if (e.keyCode == '32') {// space bar
+			keyCheck = 1001;
+			stopTimer();
+	}; //end keycheck
+  //check win or lose
+	if (keyCheck == arrowSuffix && currentTime<99){ //plays until times up or wrong key is pressed
+		generateFour(); // this are somewhere else
+		resetTimer();	
+		switchMan();
+		timeDuration = timeDuration-timeVariant;
+		if(timeDuration<500){ // the max speed the game can go before it resests the pace can't let the time get too crazy 
+			if (timeVariant>300){ // this is thee bigesst time variant can get the pace of the paces pace
+			timeDuration=500; // the max speed the maxiest speed can speed keep this more than the max before reset
+			    timeVariant=0;  // pace i think this should be 0
+		    }else{
+				timeDuration=1500; // the speed at which the pace resests to This gives you a breather
+				timeVariant=timeVariant+60; // the pace
+			}; // ebd if time duration
+			scorE=scorE+10; // gives you an few points everytime you reach max speed
+		}; // ends maxx speed
+		scorE++; // gives you a point everytime you get it right	
+		//do like a homescreen
+	}else { // generates highscore & resets game
+		if (scorE>highScore){ // if you get the high score
+			resetTimer();
+			highScore=scorE;
+		} else {// if you don't it stays the same
+			resetTimer();
+			highScore=highScore;
+		};
+		prevScore=scorE;
+		        //resets the variables to start a new game
+		scorE=0;
+		timeDuration = 1500; 
+		arrowSuffix = 1001; // make this five so you get a spacebar screen when the game restarts
+		timeVariant = 60; // initial pace
+		switchMan();
+		stopTimer();	
+	};
+	$(".value").html(scorE); //adds score to scoreboard
+	$(".value2").html(highScore); //adds highscore to scoreboard
+	$(".value3").html(prevScore); //adds previous score to scoreboard
+	$(".value4").html(timeDuration); //puts timeDuration at bottom of timebar
+};//end document.keydown keycheck
+
+function endGame() {
+	console.log('test');
+	var e = jQuery.Event("keydown");
+	e.which = 50; // # Some key code value
+	$(document).trigger(e);
+	stopTimer();
+}
+</script>
+</body>
+</html>
